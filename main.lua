@@ -1,15 +1,15 @@
 function love.load()
     rob = {
-        img = love.graphics.newImage("rob.jpg"),
+        img = love.graphics.newImage("rob.png"),
         x = 200,
         y = 100,
         Vx = 50
     }
-    function rob:walk(k)
+    function rob:update(dt)
         if love.keyboard.isDown('d') then
-            self.x = self.x + self.Vx*k
+            self.x = self.x + self.Vx*dt
         elseif love.keyboard.isDown('a') then
-            self.x = self.x - self.Vx*k
+            self.x = self.x - self.Vx*dt
         end
     end
     function rob:draw()
@@ -18,9 +18,10 @@ function love.load()
 end --load()
 
 function love.draw()
+    love.graphics.setBackgroundColor(100,100,100,255)
     rob:draw()
 end --draw()
 
 function love.update(dt)
-    rob:gororoba(dt)
+    rob:update(dt)
 end --update()
