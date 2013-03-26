@@ -1,0 +1,3 @@
+module "global" do
+
+end
