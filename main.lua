@@ -5,9 +5,11 @@ function love.load()
         y = 100,
         Vx = 50
     }
-    function rob:gororoba(k)
+    function rob:walk(k)
         if love.keyboard.isDown('d') then
             self.x = self.x + self.Vx*k
+        elseif love.keyboard.isDown('a') then
+            self.x = self.x - self.Vx*k
         end
     end
     function rob:draw()
