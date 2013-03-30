@@ -10,7 +10,7 @@ module("object",package.seeall) do
         
     end
     
-    function new(x,y,img,textoverlay,func)
+    function new(x,y,img,textoverlay,func,scale)
         local object = {
             x = x,
             y = y,
@@ -22,6 +22,7 @@ module("object",package.seeall) do
         }
         print(img:getWidth(),object.width)
         setmetatable(object,Object)
+		if scale then object.scale = scale end
         return object
     end
     
