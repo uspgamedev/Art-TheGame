@@ -1,4 +1,5 @@
 module("object",package.seeall) do
+    objs = {}
     local Object = {scale=1}
     Object.__index = Object
     

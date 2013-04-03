@@ -1,5 +1,7 @@
 require "object"
 require "global"
+require "timer"
+require "sprite"
 
 
 function initLevels()
@@ -17,7 +19,7 @@ end
 function love.load()
     bg = love.graphics.newImage("bg.jpg")
     rob = {
-        img = love.graphics.newImage("rob.png"),
+        img = sprite.new(love.graphics.newImage("rob.png"),200,340,180,1),
         x = 200,
         y = 340,
         width = 180,
@@ -41,16 +43,21 @@ function love.load()
     end
     function rob:draw()
         love.graphics.setColor(255,255,255,255)
-        love.graphics.draw(self.img,self.x,self.y)
+        self.img:draw()
     end
+    paintables = {}
+    walls = {}
+    paintables[1] = walls
+    paintables[2] = object.objs
+    paintables[3] = sprite.sps
 	initLevels()
     loadLevel(level1)
 end --load()
 
 function loadLevel(level,playerPosX,playerPosY)
-	walls = level[1]
-	object.objs = level[2]
-	paintables = level
+	walls = level[1] or walls
+	object.objs = level[2] or object.objs
+	sprite.sps = level[3] or sprite.sps
 	if playerPosX then rob.x= playerPosX end
 	if playerPosY then rob.y = playerPosY end
 end --loadLevel()
@@ -99,6 +106,7 @@ function love.draw()
 end --draw()
 
 function love.update(dt)
+    timer.update(dt,1,false)
     rob:update(dt)
     for a,b in pairs(paintables) do
         for i,v in pairs(b) do
