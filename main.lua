@@ -19,7 +19,7 @@ end
 function love.load()
     bg = love.graphics.newImage("bg.jpg")
     rob = {
-        img = sprite.new(love.graphics.newImage("rob.png"),200,340,180,1),
+        sprite = sprite.new(love.graphics.newImage("rainbowrob.png"),180,1),
         x = 200,
         y = 340,
         width = 180,
@@ -43,21 +43,20 @@ function love.load()
     end
     function rob:draw()
         love.graphics.setColor(255,255,255,255)
-        self.img:draw()
+        self.sprite:draw(self.x,self.y)
     end
     paintables = {}
-    walls = {}
-    paintables[1] = walls
-    paintables[2] = object.objs
-    paintables[3] = sprite.sps
 	initLevels()
     loadLevel(level1)
 end --load()
 
 function loadLevel(level,playerPosX,playerPosY)
-	walls = level[1] or walls
-	object.objs = level[2] or object.objs
-	sprite.sps = level[3] or sprite.sps
+	walls = level[1] or {}
+	object.objs = level[2] or {}
+	sprite.sps = level[3] or {}
+	paintables[1] = walls
+	paintables[2] = object.objs
+	paintables[3] = sprite.sps
 	if playerPosX then rob.x= playerPosX end
 	if playerPosY then rob.y = playerPosY end
 end --loadLevel()

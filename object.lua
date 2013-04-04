@@ -21,7 +21,6 @@ module("object",package.seeall) do
             text = textoverlay,
             f = func
         }
-        print(img:getWidth(),object.width)
         setmetatable(object,Object)
 		if scale then object.scale = scale end
         return object

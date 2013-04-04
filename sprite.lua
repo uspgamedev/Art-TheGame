@@ -8,23 +8,23 @@ module("sprite",package.seeall) do
         
     end
     
-    function Sprite:draw()
-        love.graphics.drawq(self.image,self.quad,self.x,self.y)
+    function Sprite:draw(x,y)
+        love.graphics.drawq(self.image,self.quad,x or self.x,y or self.y)
     end
     function Sprite:nextframe()
         self.i = self.i + 1 
-        if self.i>self.maxframe then self.i=0 end
-        self.quad.x = self.i*self.width
+        if self.i>=self.maxframe then self.i=0 end
+		self.quad:setViewport(self.i*self.width,0,self.width,self.width*self.maxframe)
     end
     
-    function new(image,x,y,width,step)
+    function new(image,width,step,x,y)
         local sprite = {}
         setmetatable(sprite,Sprite)
-        sprite.x = x
         sprite.width = width
         sprite.frame = 0
+		sprite.x = x or 0
+		sprite.y = y or 0
         sprite.maxframe = image:getWidth()/width
-        sprite.y = y
         sprite.image = image
         sprite.step = step or .1
         sprite.i = 0
