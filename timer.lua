@@ -1,8 +1,7 @@
 module ("timer",package.seeall) do
 	local Timer = {}
 	Timer.__index = Timer
-	
-	local ts = {}
+	ts = {}
 	
 	function Timer:update(dt,timefactor,paused)
 		if not self.running or (paused and self.pausable) then return end
@@ -47,11 +46,11 @@ module ("timer",package.seeall) do
 	end
 	
 	function update(dt,timefactor,paused)
-		for i,v in ipairs(ts) do
+		for i,v in pairs(ts) do
 			if v.delete then
 			    if not td then td = {v}
 			    else table.insert(td,i) end
-			else    
+			else
 			    v:update(dt,timefactor,paused)
 			end
 		end
