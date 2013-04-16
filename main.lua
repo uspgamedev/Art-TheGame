@@ -25,7 +25,6 @@ end
 function love.load()
     bg = love.graphics.newImage("bg.jpg")
     
-    
     rob = {
         imgs = {walking=sprite.new(love.graphics.newImage("rainbowrob.png"),180,1,false),standing=love.graphics.newImage("rob.png")},
         imgindex = "standing",
@@ -57,6 +56,16 @@ function love.load()
         if self.imgs[self.imgindex].isSprite then self.imgs[self.imgindex]:draw(self.x,self.y)
         else love.graphics.draw(self.imgs[self.imgindex],self.x,self.y) end
     end
+	function rob:walk(flip)
+		global.overlay2 = nil
+        rob.imgindex="walking"
+        rob.imgs.walking:start()
+        rob.imgs.walking:setflip(flip)
+	end
+	function rob:stand()
+		rob.imgindex = "standing"
+		rob.imgs.walking:stop()
+	end
     
     
     
@@ -124,20 +133,18 @@ function love.update(dt)
 end --update(dt)
 
 function love.keypressed(key,code)
-    if key=='e' and objectintouch~=nil and not(love.keyboard.isDown('a') or love.keyboard.isDown('d'))then
+    if key=='e' and objectintouch~=nil and (love.keyboard.isDown('a') == love.keyboard.isDown('d'))then
         if objectintouch.f~=nil then objectintouch.f(objectintouch) end
     end
-    if key=='a' or key=='d'then
-        global.overlay2 = nil
-        rob.imgindex="walking"
-        rob.imgs.walking:start()
-        rob.imgs.walking:setflip(key=='a')
+    if key=='a' or key=='d' then
+        if love.keyboard.isDown('a') ~= love.keyboard.isDown('d') then rob:walk(key=='a')
+		else rob:stand() end
     end
 end --keyPressed()
 
 function love.keyreleased(key,code)
-    if (key=='a' and not love.keyboard.isDown('d')) or (key=='d' and not love.keyboard.isDown('a')) then
-        rob.imgindex = "standing"
-        rob.imgs.walking:stop()
+    if key=='a' or key=='d' then
+		if love.keyboard.isDown('a') ~= love.keyboard.isDown('d') then rob:walk(key=='d')
+		else rob:stand() end
     end
 end
