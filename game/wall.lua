@@ -9,12 +9,14 @@ module ("wall",package.seeall) do
     
     function Wall:update(dt)
         if collides(rob,self) then
-            if rob.x+3>self.x then rob.x = self.x+self.width*self.scale
-            else rob.x = self.x-rob.width*rob.scale end
+            if self.collides then
+                if rob.x+3>self.x then rob.x = self.x+self.width*self.scale
+                else rob.x = self.x-rob.width*rob.scale end
+            end
             if self.f then self.f() end
        end
     end
-    function new(x,y,w,h,func)
+    function new(x,y,w,h,func,collides)
         local wall = {
             x = x,
             y= y,
@@ -24,6 +26,8 @@ module ("wall",package.seeall) do
             scale = 1,
             f = func
         }
+        if collides==false then wall.collides = false
+        else wall.collides = true end
         setmetatable(wall,Wall)
         return wall
     end

@@ -4,6 +4,7 @@ require "timer"
 require "sprite"
 require "wall"
 
+translateX = 50
 
 function initLevels()
 	level1 =  {walls={wall.new(30,300),wall.new(750,300,nil,nil,function() loadLevel(level2) end)}
@@ -16,15 +17,16 @@ function initLevels()
 	level1.objs.bg[2] = obj
 	level1.playerPosX = 500
 	
-	level2 =  {walls={wall.new(0,300,100),wall.new(700,300,100)}
+	level2 =  {walls={wall.new(0,300,100),wall.new(700,300,100,nil,function() loadLevel (level3) end)}
 	            ,objs={bg={},fg={object.new(420,500,love.graphics.newImage("piston.png"),
 		            "KATE, WE HAVE TO GO BACK",function(obj) loadLevel(level1) end,.6)}}
 		        ,playerPosX=100}
+    
+    level3 = {walls={wall.new(0,300,30,nil,function() loadLevel (level2) end),wall.new(750,300,30),wall.new(200,300,200,400,nil,false)}
+                ,playerPosX=100}
 end
 
-function love.load()
-    bg = love.graphics.newImage("bg.jpg")
-    
+function createPlayer()
     rob = {
         imgs = {walking=sprite.new(love.graphics.newImage("rainbowrob.png"),180,1,false),standing=love.graphics.newImage("rob.png")},
         imgindex = "standing",
@@ -66,8 +68,11 @@ function love.load()
 		rob.imgindex = "standing"
 		rob.imgs.walking:stop()
 	end
-    
-    
+end
+
+function love.load()
+    bg = love.graphics.newImage("bg.jpg")
+    createPlayer()
     
     paintables = {}
 	initLevels()
@@ -75,10 +80,12 @@ function love.load()
 end --load()
 
 function loadLevel(level)
-	walls = level.walls or {}
-	object.objs = level.objs or {}
+	wall.ws = level.walls or {}
+	object.objs = level.objs or {bg={},fg={}}
+    if not object.objs.fg then object.objs.fg = {} end
+    if not object.objs.bg then object.objs.bg = {} end
 	sprite.sps = level.sps or {}
-	paintables.walls = walls
+	paintables.walls = wall.ws
 	paintables.objs = object.objs
 	paintables.sps = sprite.sps
 	rob.x= level.playerPosX or rob.x 
@@ -94,7 +101,9 @@ function love.draw()
     love.graphics.draw(bg,0,0,0,.67)
     love.graphics.setBackgroundColor(100,100,100,255)
     for i,v in ipairs(object.objs.bg) do
+        love.graphics.translate(translateX*(v.parallax or 1),0)
         v:draw()
+        love.graphics.translate(-translateX*(v.parallax or 1),0)
         --love.graphics.rectangle("line",v.x,v.y,v.width*v.scale,v.height*v.scale) --debugging bounds
     end
     
@@ -104,12 +113,16 @@ function love.draw()
     for a,b in pairs(paintables) do
         if a=="objs" then 
             for _,v in ipairs(b.fg) do
+                love.graphics.translate(translateX*(v.parallax or 1),0)
                 v:draw()
+                love.graphics.translate(-translateX*(v.parallax or 1),0)
                 --love.graphics.rectangle("line",v.x,v.y,v.width*v.scale,v.height*v.scale) --debugging bounds
             end
         else 
             for _,v in ipairs(b) do
+                love.graphics.translate(translateX*(v.parallax or 1),0)
                 v:draw()
+                love.graphics.translate(-translateX*(v.parallax or 1),0)
                 --love.graphics.rectangle("line",v.x,v.y,v.width*v.scale,v.height*v.scale) --debugging bounds
            end
         end
