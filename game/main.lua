@@ -3,23 +3,25 @@ require "global"
 require "timer"
 require "sprite"
 require "wall"
+require "camera"
 
-translateX = 50
+width, height = 800, 600
 
 function initLevels()
-	level1 =  {walls={wall.new(30,300),wall.new(750,300,nil,nil,function() loadLevel(level2) end)}
-	                ,objs={fg={},bg={}}}
-	local obj = object.new(520,500,love.graphics.newImage("piston.png"),"Initiative",function(obj) global.overlay2 = "108 minutes to end of the world" end,.6)
+	level1 =  {walls={wall.new(30,300),wall.new(1000,300,nil,nil,function() loadLevel(level2) end)}
+	                ,objsfg={},objsbg={}}
+	local obj = object.new(520,500,love.graphics.newImage("resources/piston.png"),"Initiative",function(obj) global.overlay2 = "108 minutes to end of the world" end,.6)
 	obj.y = 600 - obj.height*obj.scale
-	level1.objs.bg[1] = obj
-	obj = object.new(200,0,love.graphics.newImage("piston.png"),"Dharma",nil,.6)
+	level1.objsbg[1] = obj
+	obj = object.new(200,0,love.graphics.newImage("resources/piston.png"),"Dharma",nil,.6)
 	obj.y = 600 - obj.height*obj.scale
-	level1.objs.bg[2] = obj
+	level1.objsfg[1] = obj
 	level1.playerPosX = 500
+    level1.width = 1050
 	
 	level2 =  {walls={wall.new(0,300,100),wall.new(700,300,100,nil,function() loadLevel (level3) end)}
-	            ,objs={bg={},fg={object.new(420,500,love.graphics.newImage("piston.png"),
-		            "KATE, WE HAVE TO GO BACK",function(obj) loadLevel(level1) end,.6)}}
+	            ,objsbg={},objsfg={object.new(420,500,love.graphics.newImage("resources/piston.png"),
+		            "KATE, WE HAVE TO GO BACK",function(obj) loadLevel(level1) end,.6)}
 		        ,playerPosX=100}
     
     level3 = {walls={wall.new(0,300,30,nil,function() loadLevel (level2) end),wall.new(750,300,30),wall.new(200,300,200,400,nil,false)}
@@ -28,20 +30,22 @@ end
 
 function createPlayer()
     rob = {
-        imgs = {walking=sprite.new(love.graphics.newImage("rainbowrob.png"),180,1,false),standing=love.graphics.newImage("rob.png")},
+        imgs = {walking=sprite.new(love.graphics.newImage("resources/rainbowrob.png"),180,1,false),standing=love.graphics.newImage("resources/rob.png")},
         imgindex = "standing",
         x = 200,
         y = 340,
         width = 180,
         height = 210,
         scale=1,
+        depth = 1,
         Vx = 300
     }
     function rob:update(dt)
         if love.keyboard.isDown('d') then self.x = self.x + self.Vx*dt end
         if love.keyboard.isDown('a') then self.x = self.x - self.Vx*dt end
+        camera.setTranslation(between(self.x+self.width/2 - width/2,0,levelwidth - width))
         local collided = false
-        for _,ob in pairs(object.objs) do
+        for _,ob in ipairs({object.objsfg,object.objsbg}) do
             for a,b in ipairs(ob) do
                 if collides(self,b) then
                     global.overlay = b.text
@@ -71,25 +75,68 @@ function createPlayer()
 end
 
 function love.load()
-    bg = love.graphics.newImage("bg.jpg")
+
+   
+    bgobj = { bg = love.graphics.newImage("resources/bg.jpg"), depth = 8 }
+    function bgobj:draw()
+        love.graphics.setColor(255,255,255,255)
+        love.graphics.draw(self.bg,0,0,0,.67)
+    end
+
+
     createPlayer()
-    
+    camera.translate(100,0)
+
     paintables = {}
 	initLevels()
     loadLevel(level1)
 end --load()
 
+function initLevel( level )
+    if level.initialized then return end
+
+    if level.objsfg then
+        for _,obj in ipairs(level.objsbg) do
+            obj.depth = obj.depth*.999
+        end
+    end
+
+    if level.objsbg then
+        for _,obj in ipairs(level.objsfg) do
+            obj.depth = obj.depth*1.001
+        end
+    end
+
+    level.initialized = true
+end
+
 function loadLevel(level)
+    initLevel(level)
+
 	wall.ws = level.walls or {}
-	object.objs = level.objs or {bg={},fg={}}
-    if not object.objs.fg then object.objs.fg = {} end
-    if not object.objs.bg then object.objs.bg = {} end
+	object.objsfg = level.objsfg or {}
+    object.objsbg  = level.objsbg or {}
 	sprite.sps = level.sps or {}
 	paintables.walls = wall.ws
-	paintables.objs = object.objs
+    paintables.objsfg = object.objsfg
+    paintables.objsbg = object.objsbg
 	paintables.sps = sprite.sps
 	rob.x= level.playerPosX or rob.x 
 	rob.y = level.playerPosY or rob.y
+    levelwidth = level.width or 800
+
+    for _,obj in ipairs(object.objsbg) do
+        obj.depth = obj.depth*.99
+    end
+
+    camera.clear()
+    for _,a in pairs(paintables) do
+        for __,paintable in ipairs(a) do
+            camera.add(paintable)
+        end
+    end
+    camera.add(rob)
+    camera.add(bgobj)
 end --loadLevel()
 
 function collides(t1,t2)
@@ -97,36 +144,14 @@ function collides(t1,t2)
 end --collides(t1,t2)
 
 function love.draw()
-	love.graphics.setColor(255,255,255,255)
-    love.graphics.draw(bg,0,0,0,.67)
     love.graphics.setBackgroundColor(100,100,100,255)
-    for i,v in ipairs(object.objs.bg) do
-        love.graphics.translate(translateX*(v.parallax or 1),0)
-        v:draw()
-        love.graphics.translate(-translateX*(v.parallax or 1),0)
-        --love.graphics.rectangle("line",v.x,v.y,v.width*v.scale,v.height*v.scale) --debugging bounds
-    end
     
-    rob:draw()
-    --love.graphics.rectangle("line",rob.x,rob.y,rob.width,rob.height)
+    --rob:draw()
+
     love.graphics.setColor(0,200,0,255)
-    for a,b in pairs(paintables) do
-        if a=="objs" then 
-            for _,v in ipairs(b.fg) do
-                love.graphics.translate(translateX*(v.parallax or 1),0)
-                v:draw()
-                love.graphics.translate(-translateX*(v.parallax or 1),0)
-                --love.graphics.rectangle("line",v.x,v.y,v.width*v.scale,v.height*v.scale) --debugging bounds
-            end
-        else 
-            for _,v in ipairs(b) do
-                love.graphics.translate(translateX*(v.parallax or 1),0)
-                v:draw()
-                love.graphics.translate(-translateX*(v.parallax or 1),0)
-                --love.graphics.rectangle("line",v.x,v.y,v.width*v.scale,v.height*v.scale) --debugging bounds
-           end
-        end
-    end
+
+    camera.draw()
+
     if global.overlay and not global.overlay2 then love.graphics.print(global.overlay,350,50) end --mudar pra printf com centralização e  tal
     if global.overlay2 then love.graphics.print(global.overlay2,150,50) end
 end --draw()
@@ -136,11 +161,7 @@ function love.update(dt)
     rob:update(dt)
     for a,b in pairs(paintables) do
         for i,v in pairs(b) do
-            if i=="fg" or i=="bg" then
-                for _,o in ipairs(v) do
-                    o:update()
-                end
-            else v:update(dt) end
+            v:update(dt)
         end
     end
 end --update(dt)
@@ -160,4 +181,8 @@ function love.keyreleased(key,code)
 		if love.keyboard.isDown('a') ~= love.keyboard.isDown('d') then rob:walk(key=='d')
 		else rob:stand() end
     end
+end
+
+function between(x, min, max)
+  return x < min and min or (x > max and max or x)
 end

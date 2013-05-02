@@ -23,6 +23,7 @@ module ("wall",package.seeall) do
             width = w or 30,
             height = h or 300,
             color = {255,0,0,255},
+            depth = 1,
             scale = 1,
             f = func
         }
