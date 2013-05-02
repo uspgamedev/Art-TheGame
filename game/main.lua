@@ -28,6 +28,12 @@ function initLevels()
                 ,playerPosX=100}
 end
 
+function updateCamera( player, dt )
+    local dx = between( player.x + player.width/2 - width/2, 0, levelwidth - width)
+    camera.setTranslation( camera.x - (camera.x - dx)*dt*7 )
+    
+end
+
 function createPlayer()
     rob = {
         imgs = {walking=sprite.new(love.graphics.newImage("resources/rainbowrob.png"),180,1,false),standing=love.graphics.newImage("resources/rob.png")},
@@ -43,7 +49,8 @@ function createPlayer()
     function rob:update(dt)
         if love.keyboard.isDown('d') then self.x = self.x + self.Vx*dt end
         if love.keyboard.isDown('a') then self.x = self.x - self.Vx*dt end
-        camera.setTranslation(between(self.x+self.width/2 - width/2,0,levelwidth - width))
+        updateCamera(self,dt)
+
         local collided = false
         for _,ob in ipairs({object.objsfg,object.objsbg}) do
             for a,b in ipairs(ob) do
