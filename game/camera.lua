@@ -22,18 +22,18 @@ function setTranslation( tx, ty )
 end
 
 function add( paintable )
-	local ind = 0
+	local ind = 1
 	paintable.parallax = paintable.parallax or 1/paintable.depth
 	--table.insert(paintables,paintable)
 
 	for i=1,#paintables do
-		if paintables[i].parallax >= paintable.parallax then
+		if paintables[i].parallax > paintable.parallax then
 			ind = i
 			break
 		end
 	end
 	--table.sort(paintables, function(a, b) return a.parallax < b.parallax end)
-	table.insert(paintables, ind + 1, paintable)
+	table.insert(paintables, ind, paintable)
 end
 
 function draw()

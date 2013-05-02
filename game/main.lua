@@ -24,7 +24,7 @@ function initLevels()
 		            "KATE, WE HAVE TO GO BACK",function(obj) loadLevel(level1) end,.6)}
 		        ,playerPosX=100}
     
-    level3 = {walls={wall.new(0,300,30,nil,function() loadLevel (level2) end),wall.new(750,300,30),wall.new(200,300,200,400,nil,false)}
+    level3 = {walls={wall.new(1,300,30,nil,function() loadLevel (level2) end),wall.new(750,300,30),wall.new(200,300,200,400,nil,false)}
                 ,playerPosX=100}
 end
 
@@ -37,7 +37,7 @@ function createPlayer()
         width = 180,
         height = 210,
         scale=1,
-        depth = 1,
+        parallax = .999,
         Vx = 300
     }
     function rob:update(dt)
@@ -98,12 +98,6 @@ function initLevel( level )
     if level.objsfg then
         for _,obj in ipairs(level.objsbg) do
             obj.depth = obj.depth*.999
-        end
-    end
-
-    if level.objsbg then
-        for _,obj in ipairs(level.objsfg) do
-            obj.depth = obj.depth*1.001
         end
     end
 
